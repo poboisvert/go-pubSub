@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	db "project-pubsub/db"
+	"net/http"
+	"project-pubsub/db"
 	"project-pubsub/lib/logger"
 	"project-pubsub/pkg/pubsub"
 	"project-pubsub/pkg/stock"
@@ -18,6 +19,18 @@ func main() {
 		log.Fatal("Could not connect to the database: ", err)
 	}
 	defer db.Close()
+
+	// Initialize the StockHandler.
+	stockHandler := stock.NewStockHandler()
+
+	// Register routes.
+	http.HandleFunc("/v1/stocks", stockHandler.GetAllStocks)
+
+	// Start the HTTP server.
+	logger.Info("Starting server on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 
 	// Initialize PubSub
 	ps := pubsub.NewPubSub()
