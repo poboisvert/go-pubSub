@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	db "project-pubsub/db"
 	"project-pubsub/lib/logger"
 	"project-pubsub/pkg/pubsub"
 	"project-pubsub/pkg/stock"
@@ -10,6 +12,12 @@ import (
 
 func main() {
 	logger.Info("Starting Stock Price Notifier...")
+	// Connect to database
+	err := db.Connect()
+	if err != nil {
+		log.Fatal("Could not connect to the database: ", err)
+	}
+	defer db.Close()
 
 	// Initialize PubSub
 	ps := pubsub.NewPubSub()
